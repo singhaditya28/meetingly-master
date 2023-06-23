@@ -1,6 +1,8 @@
 const PORT = process.env.PORT || 3000;
 
 const express = require('express');
+const axios = require('axios');
+
 const http = require('http');
 const app = express();
 const server = http.createServer(app);
@@ -16,7 +18,99 @@ server.listen(PORT, null, function () {
     // console.log("Listening on port " + PORT);
 });
 
-app.get(['/', '/:room'], (req, res) => res.sendFile(__dirname + '/public/index.html'));
+app.get('/login', (req, res) => {
+    const clientID = 'cf7058fb225cc08b44944f4d403f0ecf';
+    const redirectURI = 'https://meetinglyme.onrender.com/callback'; // Set your redirect URI
+    const authorizeURL = `https://cf-meetingly.bubbleapps.io/version-test/api/1.1/oauth/authorize?client_id=${clientID}&redirect_uri=${redirectURI}`;
+  
+    res.redirect(authorizeURL);
+  });
+
+app.get('/callback', async (req, res) => {
+    const { code } = req.query;
+    const clientID = 'cf7058fb225cc08b44944f4d403f0ecf';
+    const clientSecret = '7bc8ba22e2151ec944236e2cefe161e1';
+    const redirectURI = 'https://meetinglyme.onrender.com/'; // Set your redirect URI
+  
+    try{
+        const tokenEndpoint = `https://cf-meetingly.bubbleapps.io/version-test/api/1.1/oauth/access_token`;
+        const tokenResponse = await axios.post(tokenEndpoint, {
+            client_id: clientID,
+            client_secret: clientSecret,
+            redirect_uri: redirectURI,
+            code: code,
+        });
+  
+      const { access_token, expires_in, uid } = tokenResponse.data;
+      req.session.accessToken = access_token;
+      req.session.uid = uid;
+  
+      // Store the access_token, expires_in, and uid as needed
+      // Redirect the user to the desired page
+      res.redirect('/dashboard');
+    } catch (error) {
+        console.error('Error exchanging code for access token:', error);
+        res.status(500).send('An error occurred during the authentication process.');
+    }
+});
+  
+
+app.get('/dashboard', (req, res) => {
+    // Verify if the user is authenticated
+    if (req.session.accessToken && req.session.uid) {
+      // User is authenticated, perform desired actions
+      res.send(`
+      <h1>Welcome, user ${req.session.uid}!</h1>
+      <h2>Dashboard</h2>
+      <ul>
+        <li><a href="/dashboard/start">Start a Meet</a></li>
+        <li><a href="/dashboard/join">Join a Meet</a></li>
+      </ul>
+      `);
+    } else {
+      // User is not authenticated, redirect them to the login page
+      res.redirect('/login');
+    }
+});
+
+// Join Meet route
+app.get('/dashboard/join', (req, res) => {
+    // Step 7: Check if the user is authenticated
+    if (req.session.accessToken && req.session.uid) {
+      // User is authenticated, render the join meet form
+      res.send(`
+        <h1>Join a Meet</h1>
+        <form action="/dashboard/meet/:id" method="POST">
+          <input type="text" name="meetId" pattern="[A-Z0-9]{4}" title="Please enter a Meet ID" required />
+          <button type="submit">Join Meet</button>
+        </form>
+      `);
+    } else {
+      // User is not authenticated, redirect them to the login page
+      res.redirect('/login');
+    }
+});
+
+// Meet Route
+app.post('/dashboard/meet/:id', (req, res) => {
+    // Step 8: Check if the user is authenticated
+    if (req.session.accessToken && req.session.uid) {
+      // User is authenticated, retrieve the meet ID from the form submission
+      const meetId = req.body.meetId;
+      
+      // Perform actions with the meet ID (e.g., join the meet)
+      res.send(`Joining Meet ${meetId}`);
+      res.redirect(`/${meetId}`)
+    } else {
+      // User is not authenticated, redirect them to the login page
+      res.redirect('/login');
+    }
+});
+
+
+
+
+app.get(['/','/:room', '/dashboard/start'], (req, res) => res.sendFile(__dirname + '/public/index.html'));
 
 /**
  * Users will connect to the signaling server, after which they'll issue a "join"
