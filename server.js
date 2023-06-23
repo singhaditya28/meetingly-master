@@ -13,6 +13,9 @@ const morgan = require('morgan');
 // log all requests
 // app.use(morgan('combined'));
 
+app.use(express.urlencoded({ extended: true }));
+app.use(session({ secret: '0000', resave: true, saveUninitialized: true }));
+
 app.use(express.static(__dirname + '/public'));
 server.listen(PORT, null, function () {
     // console.log("Listening on port " + PORT);
@@ -44,7 +47,7 @@ app.get('/callback', async (req, res) => {
       const { access_token, expires_in, uid } = tokenResponse.data;
       req.session.accessToken = access_token;
       req.session.uid = uid;
-  
+      console.log(req.session.accessToken, '\n', req.session.uid);
       // Store the access_token, expires_in, and uid as needed
       // Redirect the user to the desired page
       res.redirect('/dashboard');
