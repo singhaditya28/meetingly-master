@@ -40,7 +40,7 @@ app.get('/callback', async (req, res) => {
             redirect_uri: redirectURI,
             code: code,
         });
-  
+      console.log(tokenResponse);
       const { access_token, expires_in, uid } = tokenResponse.data;
     //   req.session.accessToken = access_token;
     //   req.session.uid = uid;
