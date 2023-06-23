@@ -11,3 +11,9 @@ Screen sharing is still not supported by all the browsers. The screen sharing bu
 
 ### Credits:
 [https://github.com/anoek/webrtc-group-chat-example](https://github.com/anoek/webrtc-group-chat-example)
+
+
+### Setup
+`npm i express`
+
+`node server.js`
