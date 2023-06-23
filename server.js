@@ -42,8 +42,8 @@ app.get('/callback', async (req, res) => {
         });
   
       const { access_token, expires_in, uid } = tokenResponse.data;
-      req.session.accessToken = access_token;
-      req.session.uid = uid;
+    //   req.session.accessToken = access_token;
+    //   req.session.uid = uid;
   
       // Store the access_token, expires_in, and uid as needed
       // Redirect the user to the desired page
