@@ -84,7 +84,7 @@ app.get('/dashboard/join', (req, res) => {
       // User is authenticated, render the join meet form
       res.send(`
         <h1>Join a Meet</h1>
-        <form action="/dashboard/meet/:id" method="POST">
+        <form action="/dashboard/meet/" method="POST">
           <input type="text" name="meetId" pattern="[A-Z0-9]{4}" title="Please enter a Meet ID" required />
           <button type="submit">Join Meet</button>
         </form>
@@ -96,14 +96,14 @@ app.get('/dashboard/join', (req, res) => {
 });
 
 // Meet Route
-app.post('/dashboard/meet/:id', (req, res) => {
+app.post('/dashboard/meet/', (req, res) => {
     // Step 8: Check if the user is authenticated
     if (req.session.accessToken && req.session.uid) {
       // User is authenticated, retrieve the meet ID from the form submission
       const meetId = req.body.meetId;
       
       // Perform actions with the meet ID (e.g., join the meet)
-      res.send(`Joining Meet ${meetId}`);
+    //   res.send(`Joining Meet ${meetId}`);
       res.redirect(`/${meetId}`)
     } else {
       // User is not authenticated, redirect them to the login page
@@ -111,10 +111,12 @@ app.post('/dashboard/meet/:id', (req, res) => {
     }
 });
 
+app.get('/dashboard/start', (req,res) => {
+    res.redirect('/');
+});
 
 
-
-app.get(['/','/:room', '/dashboard/start'], (req, res) => res.sendFile(__dirname + '/public/index.html'));
+app.get(['/','/:room'], (req, res) => res.sendFile(__dirname + '/public/index.html'));
 
 /**
  * Users will connect to the signaling server, after which they'll issue a "join"
