@@ -66,7 +66,9 @@ app.get('/dashboard', (req, res) => {
     if (req.session.accessToken && req.session.uid) {
       // User is authenticated, perform desired actions
       res.send(`
-      <h1>Welcome, user ${req.session.uid}!</h1>
+      <h1>Welcome, user ${req.session.uid}!
+      Access- token ${req.session.accessToken}</h1>
+  
       <h2>Dashboard</h2>
       <ul>
         <li><a href="/dashboard/start">Start a Meet</a></li>
@@ -119,11 +121,17 @@ app.get('/dashboard/start', (req,res) => {
 
 
 // Fetch user details by ID
-const getUserDetails = async (userId) => {
+const getUserDetails = async (userId, accessToken) => {
   try {
-    const response = await axios.post('https://cf-meetingly.bubbleapps.io/version-test/api/1.1/wf/get_meetingly_user_by_id', {
-      uid: userId
-    });
+    const response = await axios.post(
+      'https://cf-meetingly.bubbleapps.io/version-test/api/1.1/wf/get_meetingly_user_by_id',
+      { uid: userId },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
+    );
     return response.data;
   } catch (error) {
     console.error('Error fetching user details:', error);
@@ -139,7 +147,7 @@ app.get(['/', '/:room'], async (req, res) => {
 
     // Fetch user details
     try {
-      const userDetails = await getUserDetails(req.session.uid);
+      const userDetails = await getUserDetails(req.session.uid, req.session.accessToken);
       const fullName = userDetails['User First Name'] + ' ' + userDetails['User Last Name'];
       console.log(fullName , "from app.get /");
 
