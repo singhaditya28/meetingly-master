@@ -80,6 +80,8 @@ function init() {
      */
     signaling_socket.on('addPeer', function (config) {
         console.log('Signaling server said to add peer:', config);
+        const fullName = document.querySelector("#abcfullname"); //getElementById
+        
         var peer_id = config.peer_id;
         if (peer_id in peers) {
             /* This could happen if the user joins multiple channels where the other peer is also in. */
@@ -89,7 +91,7 @@ function init() {
         var peer_connection = new RTCPeerConnection({"iceServers": ICE_SERVERS}, {"optional": [{"DtlsSrtpKeyAgreement": true}]} // this will no longer be needed by chrome eventually (supposedly), but is necessary for now to get firefox to talk to chrome
         );
         peers[peer_id] = peer_connection;
-
+        
         peer_connection.onicecandidate = function (event) {
             if (event.candidate) {
                 signaling_socket.emit('relayICECandidate', {
@@ -107,6 +109,12 @@ function init() {
             videoWrap.className = 'video';
             const remote_media = document.createElement('video');
             videoWrap.appendChild(remote_media);
+            const fullNameElement = document.createElement('div');
+            fullNameElement.className = 'full-name';
+            fullNameElement.textContent = fullName;
+            videoWrap.appendChild(fullNameElement);
+            console.log(fullName);
+
             remote_media.setAttribute('playsinline', true);
             remote_media.mediaGroup = 'remotevideo';
             remote_media.autoplay = true;
@@ -287,8 +295,17 @@ function setup_local_media(callback, errorback) {
         videoMuteBtn.setAttribute('id', 'videomutebtn');
         videoMuteBtn.className = 'fas fa-video';
         videoMuteBtn.addEventListener('click', (e) => {
-            local_media_stream.getVideoTracks()[0].enabled = !(local_media_stream.getVideoTracks()[0].enabled);
-            e.target.className = 'fas fa-video' + (local_media_stream.getVideoTracks()[0].enabled ? '' : '-slash');
+            let currentVideoState = local_media_stream.getVideoTracks()[0].enabled;
+            if(currentVideoState) {
+                local_media_stream.getVideoTracks()[0].enabled = false;
+                e.target.className = 'fas fa-video-slash';
+                local_media_stream.getTracks().forEach(track => track.enabled = false);
+                return;
+            }
+            local_media_stream.getTracks().forEach(track => track.enabled = true);
+
+            local_media_stream.getVideoTracks()[0].enabled = true;
+            e.target.className = 'fas fa-video';
         });
         btnWrap.appendChild(videoMuteBtn);
 

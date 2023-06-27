@@ -21,11 +21,14 @@
 </head>
 
 <body onload='init()'>
+      <div id = "abcfullname" data-full-name = <%= fullName %> >
+      </div>
 <div id="intro" class="message">
     <a href="javascript:void(0)" id="closebtn">&times;</a>
     Invite your friends to video call by sharing this URL.
     <span id="roomurl"></span>
 </div>
+
 <div id="tooManyParticipants" class="message">Too many participants will affect the performance of the video call.</div>
 <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 <script src="/socket.io/socket.io.js"></script>

@@ -17,6 +17,8 @@ const morgan = require('morgan');
 app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: '0000', resave: true, saveUninitialized: true }));
 
+app.set('view engine', 'ejs');
+
 app.use(express.static(__dirname + '/public'));
 server.listen(PORT, null, function () {
     // console.log("Listening on port " + PORT);
@@ -116,8 +118,44 @@ app.get('/dashboard/start', (req,res) => {
 });
 
 
-app.get(['/','/:room'], (req, res) => res.sendFile(__dirname + '/public/index.html'));
+// Fetch user details by ID
+const getUserDetails = async (userId) => {
+  try {
+    const response = await axios.post('https://cf-meetingly.bubbleapps.io/version-test/api/1.1/wf/get_meetingly_user_by_id', {
+      uid: userId
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    throw error;
+  }
+};
 
+
+app.get(['/', '/:room'], async (req, res) => {
+  // Check if the user is authenticated
+  if (req.session.accessToken && req.session.uid) {
+    // User is authenticated, allow access to the root route
+
+    // Fetch user details
+    try {
+      const userDetails = await getUserDetails(req.session.uid);
+      const fullName = userDetails['User First Name'] + ' ' + userDetails['User Last Name'];
+
+      // Render the index.html file with the user's full name
+      res.sendFile('index', {
+        fullName: fullName
+      });
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      // Handle the error accordingly (e.g., redirect to an error page)
+      res.redirect('/error');
+    }
+  } else {
+    // User is not authenticated, redirect them to the login page
+    res.redirect('/login');
+  }
+});
 /**
  * Users will connect to the signaling server, after which they'll issue a "join"
  * to join a particular channel. The signaling server keeps track of all sockets
