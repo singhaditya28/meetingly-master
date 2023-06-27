@@ -149,6 +149,7 @@ app.get(['/', '/:room'], async (req, res) => {
     // Fetch user details
     try {
       const userDetails = await getUserDetails(req.session.uid, req.session.accessToken);
+      console.log(userDetails);
       const fullName = userDetails['User First Name'] + ' ' + userDetails['User Last Name'];
       console.log(fullName , "from app.get /");
 
