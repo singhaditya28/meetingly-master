@@ -154,6 +154,13 @@ app.get(['/', '/:room'], async (req, res) => {
       const fullName = userDetails.response['User First Name'] + ' ' + userDetails.response['User Last Name'];
       console.log(fullName , "from app.get /");
 
+      // Check if the room parameter is provided
+      if (req.params.room) {
+        // Room parameter is provided, redirect the user to the specified room
+        const room = req.params.room;
+        res.redirect(`/${room}`);
+      }
+
       // Render the index.html file with the user's full name
       res.render('index', {
         
