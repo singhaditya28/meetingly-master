@@ -20,6 +20,7 @@ app.use(session({ secret: '0000', resave: true, saveUninitialized: true }));
 app.set('view engine', 'ejs');
 
 app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/views'));
 server.listen(PORT, null, function () {
     // console.log("Listening on port " + PORT);
 });
