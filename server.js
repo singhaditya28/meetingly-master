@@ -141,15 +141,18 @@ app.get(['/', '/:room'], async (req, res) => {
     try {
       const userDetails = await getUserDetails(req.session.uid);
       const fullName = userDetails['User First Name'] + ' ' + userDetails['User Last Name'];
+      console.log(fullName , "from app.get /");
 
       // Render the index.html file with the user's full name
       res.sendFile('index', {
+        
         fullName: fullName
       });
     } catch (error) {
       console.error('Error fetching user details:', error);
       // Handle the error accordingly (e.g., redirect to an error page)
-      res.redirect('/error');
+
+      // res.redirect('/error');
     }
   } else {
     // User is not authenticated, redirect them to the login page
