@@ -128,6 +128,7 @@ const getUserDetails = async (userId, accessToken) => {
       { uid: userId },
       {
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`
         }
       }
