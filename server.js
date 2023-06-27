@@ -153,7 +153,7 @@ app.get(['/', '/:room'], async (req, res) => {
       console.log(fullName , "from app.get /");
 
       // Render the index.html file with the user's full name
-      res.sendFile('index', {
+      res.render('index', {
         
         fullName: fullName
       });
